@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import Hero from "./Hero";
 
 type Skill = {
   slug: string;
@@ -193,7 +194,11 @@ export default function Home() {
   const forgedCount = skills.length - officialCount;
 
   return (
-    <div className="relative z-10 flex min-h-dvh flex-col">
+    <>
+      {/* New hero — 3D forge backdrop, sits above the untouched workbench. */}
+      <Hero />
+
+      <div className="relative z-10 flex min-h-dvh flex-col">
       {/* Header */}
       <header className="sticky top-0 z-20 border-b border-white/10 bg-[var(--bg)]/60 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
@@ -219,8 +224,9 @@ export default function Home() {
         <div className="grid gap-4 lg:h-[calc(100dvh-8.5rem)] lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-5">
           {/* Workbench — the chat */}
           <section
+            id="workbench"
             aria-label="Workbench"
-            className="glass flex min-h-0 min-w-0 flex-col overflow-hidden"
+            className="glass flex min-h-0 min-w-0 flex-col overflow-hidden scroll-mt-20"
           >
             <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
               <span className="mono text-xs uppercase tracking-[0.18em] text-[var(--text-dim)]">
@@ -422,7 +428,7 @@ export default function Home() {
         </div>
 
         {/* How this works — collapsible */}
-        <details className="group glass mt-4">
+        <details id="how-it-works" className="group glass mt-4 scroll-mt-20">
           <summary className="mono flex cursor-pointer list-none items-center justify-between px-4 py-3 text-xs uppercase tracking-[0.18em] text-[var(--text-dim)]">
             How this works
             <ChevronIcon className="h-4 w-4 transition-transform group-open:rotate-180 motion-reduce:transition-none" />
@@ -449,6 +455,7 @@ export default function Home() {
           </div>
         </details>
       </main>
-    </div>
+      </div>
+    </>
   );
 }
