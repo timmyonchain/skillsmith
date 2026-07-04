@@ -121,7 +121,7 @@ export default function Hero() {
           <div className="max-w-2xl">
             <motion.h2
               {...rise(0.2)}
-              className="mono text-4xl font-bold uppercase leading-[1.05] tracking-tight sm:text-6xl"
+              className="mono text-4xl font-bold uppercase leading-[1.15] tracking-tight sm:text-6xl"
             >
               <span className="block text-[var(--text)]">Skillsmith</span>
               <span className="block text-[var(--accent)]">
