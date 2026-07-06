@@ -7,6 +7,7 @@
   --bg: #0a1712; /* deep near-black forest green */
   --accent: #00e39a; /* Mantle green — ambient glow, OFFICIAL, highlights */
   --forge: #ff7a45; /* RESERVED: Forge button + freshly-forged glow ONLY */
+  --steel: #7ea6cc; /* steel-blue — secondary actions (export controls) */
   --text: #edf6f1;
   --text-dim: rgba(237, 246, 241, 0.6);
   --text-faint: rgba(237, 246, 241, 0.38);

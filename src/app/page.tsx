@@ -80,6 +80,134 @@ function SparkIcon({ className }: { className?: string }) {
   );
 }
 
+function CopyIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
+
+// --- Export controls -------------------------------------------------------
+// Turns a single chat answer into a ready-to-post Tweet / Thread / Article
+// draft via /api/export. Each assistant message owns its own instance, so the
+// loading / draft / error / copied state is scoped to that one message.
+type ExportFormat = "tweet" | "thread" | "article";
+const FORMAT_LABELS: Record<ExportFormat, string> = {
+  tweet: "Tweet",
+  thread: "Thread",
+  article: "Article",
+};
+
+function MessageExport({
+  question,
+  answer,
+  skillName,
+}: {
+  question: string;
+  answer: string;
+  skillName: string | null;
+}) {
+  const [format, setFormat] = useState<ExportFormat | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [draft, setDraft] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const run = async (fmt: ExportFormat) => {
+    setFormat(fmt);
+    setLoading(true);
+    setDraft(null);
+    setError(null);
+    setCopied(false);
+    try {
+      const res = await fetch("/api/export", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ question, answer, skillName, format: fmt }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data?.error ?? "Export failed. Please try again.");
+      } else {
+        setDraft(data.draft ?? "");
+      }
+    } catch {
+      setError("Couldn't reach the exporter (network error). Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copy = async () => {
+    if (draft == null) return;
+    try {
+      await navigator.clipboard.writeText(draft);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setError("Couldn't copy to clipboard.");
+    }
+  };
+
+  return (
+    <div className="mt-2">
+      <div className="flex flex-wrap items-center gap-1.5">
+        {(Object.keys(FORMAT_LABELS) as ExportFormat[]).map((fmt) => (
+          <button
+            key={fmt}
+            type="button"
+            onClick={() => run(fmt)}
+            disabled={loading}
+            className="mono inline-flex cursor-pointer items-center rounded-md border border-white/10 bg-white/[0.03] px-2 py-1 text-xs text-[var(--steel)] transition-colors hover:border-[var(--steel)]/50 hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {loading && format === fmt
+              ? `Exporting ${FORMAT_LABELS[fmt]}…`
+              : `Export as ${FORMAT_LABELS[fmt]}`}
+          </button>
+        ))}
+      </div>
+
+      {!loading && (draft != null || error) && (
+        <div className="glass mt-2 p-3">
+          {error ? (
+            <p className="text-xs text-[var(--error)]">{error}</p>
+          ) : (
+            <>
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="mono text-[10px] uppercase tracking-[0.16em] text-[var(--steel)]">
+                  {format ? FORMAT_LABELS[format] : ""} draft
+                </span>
+                <button
+                  type="button"
+                  onClick={copy}
+                  className="mono inline-flex cursor-pointer items-center gap-1 rounded border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[11px] text-[var(--steel)] transition-colors hover:border-[var(--steel)]/50 hover:bg-white/[0.06]"
+                >
+                  <CopyIcon className="h-3 w-3" />
+                  {copied ? "Copied!" : "Copy"}
+                </button>
+              </div>
+              <pre className="scroll-quiet wrap-anywhere max-h-80 overflow-y-auto whitespace-pre-wrap font-sans text-sm leading-relaxed text-[var(--text)]">
+                {draft}
+              </pre>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Home() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -312,6 +440,17 @@ export default function Home() {
                                 </span>
                               )}
                             </p>
+                          )}
+                          {!m.error && m.content.trim().length > 0 && (
+                            <MessageExport
+                              question={
+                                i > 0 && messages[i - 1].role === "user"
+                                  ? messages[i - 1].content
+                                  : ""
+                              }
+                              answer={m.content}
+                              skillName={m.usedSkill ?? null}
+                            />
                           )}
                         </div>
                       )}
