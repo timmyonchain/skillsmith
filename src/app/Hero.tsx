@@ -115,9 +115,11 @@ export default function Hero() {
         </div>
       </nav>
 
-      {/* CONTENT — anchored bottom-left, staggered entrance. */}
+      {/* CONTENT — anchored bottom-left, staggered entrance.
+          pt-28 guarantees clearance below the fixed navbar so the two
+          "SKILLSMITH" texts can never collide on short viewports. */}
       <div className="relative z-10 mt-auto w-full">
-        <div className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 sm:pb-20">
+        <div className="mx-auto w-full max-w-7xl px-4 pt-28 pb-16 sm:px-6 sm:pb-20">
           <div className="max-w-2xl">
             <motion.h2
               {...rise(0.2)}
