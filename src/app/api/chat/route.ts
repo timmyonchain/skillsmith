@@ -75,7 +75,14 @@ export async function POST(req: Request) {
       `(1-2 sentences), "trigger_keywords": string[] (4-6 items), ` +
       `"instructions": string (reusable guidance for handling this category of ` +
       `question in future), "answer": string (the actual answer to the user's ` +
-      `current question)}`;
+      `current question)}\n\n` +
+      `If the user's question involves something that could have changed ` +
+      `recently, current events, the latest version of anything, prices, or ` +
+      `facts about yourself as an AI, be upfront that you may not have the ` +
+      `most current information and suggest the user verify with an ` +
+      `authoritative source. Don't guess at self-referential facts like your ` +
+      `own training cutoff, just say you're not fully certain of the exact ` +
+      `date.`;
 
     let forged: {
       name: string;
